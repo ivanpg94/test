@@ -10,9 +10,6 @@
         {
             "type": "composer",
             "url": "https://repo.packagist.com/test-ivanpg1994/"
-        },
-        {
-            "packagist.org": false
         }
     ],
     "require": {
