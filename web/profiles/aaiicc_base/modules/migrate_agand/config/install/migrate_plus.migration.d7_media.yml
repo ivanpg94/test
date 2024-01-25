@@ -1,0 +1,35 @@
+id: d7_media
+label: 'Imágenes media'
+
+source:
+  plugin: d7_media_image
+  key: migrate
+
+process:
+  name: filename
+  field_media_image/target_id:
+    plugin: migration_lookup
+    migration: d7_files
+    source: fid
+    no_stub: true
+  field_media_image/alt: filename
+
+  thumbnail/target_id:
+    plugin: migration_lookup
+    migration: d7_files
+    source: fid
+    no_stub: true
+  uid:
+    plugin: default_value
+    default_value: 1
+
+destination:
+  plugin: 'entity:media'
+  default_bundle: image
+
+dependencies:
+  module:
+    - migrate_agand
+  enforced:
+    module:
+      - migrate_agand

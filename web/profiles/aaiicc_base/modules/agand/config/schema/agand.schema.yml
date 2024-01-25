@@ -1,0 +1,10 @@
+agand.settings:
+  type: config_object
+  label: 'Agenda Andaluza settings'
+  mapping:
+    smartsupp_active:
+      label: Smartsupp active
+      type: boolean
+    smartsupp_id:
+      label: Smartsupp ID
+      type: string

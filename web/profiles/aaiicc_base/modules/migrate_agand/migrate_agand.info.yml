@@ -1,0 +1,6 @@
+name: Agenda Andaluza migration module
+type: module
+description: 'Migration from D7 for Agenda Andaluza web.'
+package: Custom
+core: 8.x
+core_version_requirement: ^8 || ^9 || ^10

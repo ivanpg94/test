@@ -1,0 +1,42 @@
+id: paragraph_documentation
+label: Event links/documents to activity documentation paragraphs
+
+source:
+  plugin: d7_activity
+  node_type: evento
+  key: migrate
+
+process:
+  migrate_map:
+    plugin: migrate_lookup_nid_only
+    source: nid
+    migration:
+      - paragraph_link
+      - paragraph_doc
+
+  skip:
+    plugin: skip_on_empty
+    method: row
+    source: "@migrate_map"
+
+  field_content:
+    plugin: sub_process
+    source: "@migrate_map"
+    process:
+      target_id: destid1
+      target_revision_id: destid2
+
+  field_docs__show_as:
+    plugin: default_value
+    default_value: list
+
+destination:
+  plugin: 'entity_reference_revisions:paragraph'
+  default_bundle: docs
+
+dependencies:
+  module:
+    - migrate_agand
+  enforced:
+    module:
+      - migrate_agand

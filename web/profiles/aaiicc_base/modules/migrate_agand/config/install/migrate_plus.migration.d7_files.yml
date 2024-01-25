@@ -1,0 +1,45 @@
+id: d7_files
+label: 'Archivos'
+
+source:
+  plugin: custom_d7_file
+  scheme: public
+  constants:
+    source_base_path: public://old_web_files/
+
+process:
+  filename: filename
+  source_full_path:
+    -
+      plugin: concat
+      delimiter: ''
+      source:
+        - constants/source_base_path
+        - filepath
+  uri:
+    plugin: file_copy
+    source:
+      - '@source_full_path'
+      - uri
+  filemime: filemime
+  # No need to migrate filesize, it is computed when file entities are saved.
+  # filesize: filesize
+  status: status
+  # Drupal 7 didn't keep track of the file's creation or update time -- all it
+  # had was the vague "timestamp" column. So we'll use it for both.
+  created: timestamp
+  changed: timestamp
+
+  uid:
+    plugin: default_value
+    default_value: 1
+
+destination:
+  plugin: entity:file
+
+dependencies:
+  module:
+    - migrate_agand
+  enforced:
+    module:
+      - migrate_agand

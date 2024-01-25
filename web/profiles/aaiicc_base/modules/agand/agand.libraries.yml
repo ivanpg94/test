@@ -1,0 +1,14 @@
+gin_fix:
+  version: VERSION
+  css:
+    theme:
+      css/gin_fix.css: {}
+  dependencies:
+    - gin/gin_toolbar
+
+smartsupp_integration:
+  version: VERSION
+  js:
+    js/smartsupp_integration.js: {}
+  dependencies:
+    - core/drupalSettings

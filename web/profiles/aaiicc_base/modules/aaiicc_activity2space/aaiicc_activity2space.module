@@ -1,0 +1,100 @@
+<?php
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Messenger\MessengerInterface;
+
+/**
+ * Implements hook_form_alter().
+ */
+function aaiicc_activity2space_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'node_space_edit_form') {
+    $form['actions']['update_activity'] = [
+      '#type' => 'submit',
+      '#value' => t('Actualizar desde actividad'),
+      '#submit' => ['aaiicc_activity2space_update_activity_submit'],
+    ];
+    $form['activity_title'] = [
+      '#type' => 'textfield',
+      '#title' => t('Título de la actividad que desea copiar la información'),
+      '#autocomplete_route_name' => 'aaiicc_activity2space.autocomplete_activity',
+      '#description' => 'Escriba el título de una actividad y se mostrarán los 10 primeros que concuerden con el texto. Una vez seleccionado uno de ellos, si pulsa en "Actualizar desde actividad" se copiará todo el contenido posible al espacio (si el campo está vacío).',
+      '#required' => FALSE,
+    ];
+  }
+}
+
+/**
+ * Form submission handler for the "Actualizar desde actividad" button.
+ */
+function aaiicc_activity2space_update_activity_submit($form, &$form_state) {
+
+  $fld_ok = array();
+
+  $fields_merged = [
+    /*-------------------------------------------------
+      lista de campos a copiar
+      <campo_actividad>             => <campo_espacio>
+      -------------------------------------------------*/
+
+    // tipo campo: BOOLEANO
+    'field_highlight'               => 'field_highlight',
+    'field_image_fit'               => 'field_image_fit',
+    'field_institutional'           => 'field_institutional',
+    // tipo campo: EMAIL
+    'field_email'                   => 'field_email',
+    // tipo campo: DIRECCIÓN
+    'field_address'                 => 'field_address',
+    // tipo campo: ENLACE
+    'field_purchase_url'            => 'field_purchase_url',
+    'field_website'                 => 'field_website',
+    // tipo campo: REFERENCIA ENTIDAD
+    'field_sections'                => 'field_sections',
+    'field_image'                   => 'field_image',
+    'field_municipality'            => 'field_municipality',
+    'field_province'                => 'field_province',
+    'field_topic'                   => 'field_topic',
+    'field_type'                    => 'field_type',
+    // tipo campo: TEXTO (text_with_summary)
+    'body'                          => 'body',
+    'field_note'                    => 'field_note',
+    'field_phone'                   => 'field_phone',
+    'field_activity__schedule_text' => 'field_space__schedule_text',    // OJO que éste cambia de nombre
+  ];
+
+  $space_node = $form_state->getFormObject()->getEntity();
+  $activity_title = $form_state->getValue('activity_title');
+  $activity_nodes = \Drupal::entityTypeManager()->getStorage('node')->loadByProperties([
+    'type' => 'activity',
+    'title' => $activity_title,
+  ]);
+  if ($activity_nodes) {
+    $activity_node = reset($activity_nodes);
+    foreach ($activity_node->getFields() as $field_name => $field) {      
+      if (in_array($field_name,array_keys($fields_merged)) && $space_node->hasField($fields_merged[$field_name]))
+      { 
+        // obtenemos el valor del nodo space
+        $fld_val= $space_node->get($fields_merged[$field_name])->getValue();
+        // obtenemos el tipo del campo del nodo space a revisar
+        $fld_typ = $space_node->getFieldDefinition($fields_merged[$field_name])->getType();
+        
+        $ACTUALIZAR = false;
+        if(in_array($fld_typ,array('text_with_summary','text_long'))) {
+          $ACTUALIZAR = ( empty($fld_val['value']) ? true : false );
+        } else {
+          $ACTUALIZAR = ( empty($fld_val) ? true : false );
+        }        
+        if($ACTUALIZAR) {          
+          $space_node->set($fields_merged[$field_name], $activity_node->get($field_name)->getValue());
+          $fld_ok[]=$fields_merged[$field_name];
+        }
+      }
+    }
+    $space_node->save();
+    \Drupal::messenger()->addMessage(t("Espacio actualizado con la información de la actividad <a target='_blank' href=".
+      \Drupal::request()->getSchemeAndHttpHost().base_path().'node/'.$activity_node->id().'/edit'
+    .">$activity_title</a> y los siguientes campos:<br>".implode('<br>',$fld_ok).'<br><br>El resto de campos deben estar vacíos para poder copiarlos.'));
+  }
+  else {
+    \Drupal::messenger()->addMessage(t("No se encontró ninguna actividad con el título '$activity_title'"), 'error');
+  }
+}

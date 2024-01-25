@@ -1,0 +1,33 @@
+id: paragraph_doc
+label: Event document links to activity document links paragraphs
+
+source:
+  plugin: d7_activity_field_doc
+  node_type: evento
+  key: migrate
+
+process:
+  field_icon/icon_name:
+    plugin: default_value
+    default_value: file
+  field_icon/style:
+    plugin: default_value
+    default_value: fas
+  field_icon/settings:
+    plugin: default_value
+    default_value: 'a:0:{}'
+
+  field_link:
+    plugin: field_link
+    source: doc_link
+
+destination:
+  plugin: 'entity_reference_revisions:paragraph'
+  default_bundle: link_section
+
+dependencies:
+  module:
+    - migrate_agand
+  enforced:
+    module:
+      - migrate_agand

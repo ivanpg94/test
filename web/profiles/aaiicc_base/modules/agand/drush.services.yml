@@ -1,0 +1,9 @@
+services:
+  agand.commands:
+    class: \Drupal\agand\Commands\AgandCommands
+    arguments:
+      - '@entity_type.manager'
+      - '@path_alias.manager'
+      - '@pathauto.alias_cleaner'
+    tags:
+      - { name: drush.command }

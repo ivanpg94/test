@@ -1,0 +1,5 @@
+agand.config:
+  title: Agenda Andaluza Config
+  parent: system.admin_config_system
+  route_name: agand.config
+  weight: 20

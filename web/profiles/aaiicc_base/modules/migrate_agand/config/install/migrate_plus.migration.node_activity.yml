@@ -1,0 +1,205 @@
+id: node_activity
+label: Activity
+
+source:
+  plugin: d7_activity
+  node_type: evento
+  key: migrate
+  constants:
+    FILTER_VAR_URL: 273
+    NULL_VALUE: null
+
+process:
+  # Base fields
+  type:
+    plugin: default_value
+    default_value: activity
+  uid:
+    plugin: default_value
+    default_value: 1
+  langcode: language
+  title: title
+  status: status
+  promote: promote
+  sticky: sticky
+  created: created
+  changed: changed
+
+  moderation_state:
+    plugin: moderation_state_date
+    source: field_fecha_fin/0/value
+
+  # Specific fields
+
+  # Textarea fields
+  body/summary: body/0/summary
+  body/value: body/0/value
+  body/format: body/0/format
+
+  field_activity__schedule_text/value: field_horarios/0/value
+  field_activity__schedule_text/format: field_horarios/0/format
+
+  field_organizer/value: field_organizadores/0/value
+  field_organizer/format: field_organizadores/0/format
+
+  # Text fields
+  field_registration_price: field_precio
+
+  # Text list fields
+
+  # Link fields
+  field_purchase_url/uri:
+    -
+      plugin: skip_on_empty
+      method: process
+      source: field_compra_entradas_online/0/value
+    -
+      plugin: callback
+      callable: filter_var
+      unpack_source: true
+      source:
+        - field_compra_entradas_online/0/value
+        - constants/FILTER_VAR_URL
+  field_purchase_url/title:
+    -
+      plugin: skip_on_empty
+      method: process
+      source: "@field_purchase_url/uri"
+    -
+      plugin: get
+      source: constants/NULL_VALUE
+    -
+      plugin: default_value
+      default_value: 'Comprar entradas'
+
+  field_website:
+    plugin: field_link
+    source: field_web_de_informacion
+
+  # Date fields
+  field_activity__dates:
+    plugin: sub_process
+    source: field_fechas
+    process:
+      value:
+        plugin: format_date
+        from_format: 'Y-m-d H:i:s'
+        to_format: 'U'
+        source: value
+      end_value:
+        plugin: date_all_day
+        source: value
+      duration:
+        plugin: default_value
+        default_value: 1439
+
+  # Image fields
+  field_image:
+    plugin: migration_lookup
+    migration: d7_media
+    no_stub: true
+    source: field_imagen/0/fid
+
+  # Boolean fields
+  field_on_site: field_presencial
+  field_institutional: field_actividad_institucional
+
+  # Reference fields
+  field_topic:
+    plugin: sub_process
+    source: field_tipologia
+    process:
+      target_id:
+        plugin: static_map
+        source: tid
+        map:
+          # Agenda infantil -> Agenda joven
+          10: 1435
+          # Cine y audiovisual (same)
+          8: 1433
+          # Espectáculos (same)
+          4: 1429
+          # Exposiciones y museos -> Exposiciones
+          5: 1430
+          # Fiestas y tradiciones (same)
+          15203: 1436
+          # Flamenco (same)
+          15204: 1437
+          # Formación -> Cursos y formación
+          9: 1434
+          # Libros y lectura -> Libros y literatura
+          7: 1432
+          # Monumentos y visitas -> Monumentos y espacios culturales
+          6: 1431
+
+  field_province:
+    plugin: static_map
+    source: province_id
+    default_value: null
+    map:
+      # Almería
+      13: 1438
+      # Barcelona
+      17: 1447
+      # Cádiz
+      25: 1439
+      # Córdoba
+      26: 1440
+      # Granada
+      28: 1485
+      # Huelva
+      31: 1442
+      # Jaén
+      33: 1489
+      # Madrid
+      38: 1446
+      # Málaga
+      41: 1444
+      # Sevilla
+      51: 1445
+
+  field_activity__spaces:
+    plugin: migration_lookup
+    migration: node_space
+    no_stub: true
+    source: field_lugar_celebracion_target_id
+
+  # Paragraphs fields
+  migrate_map:
+    plugin: migrate_lookup_nid_only
+    source: nid
+    migration: paragraph_documentation
+
+  field_sections:
+    -
+      plugin: skip_on_empty
+      method: process
+      source: "@migrate_map"
+    -
+      plugin: sub_process
+      process:
+        target_id: destid1
+        target_revision_id: destid2
+
+  # Address fields
+  field_address/langcode:
+    plugin: default_value
+    default_value: es
+  field_address/country_code:
+    plugin: default_value
+    default_value: ES
+  field_address/locality: city
+  field_address/address_line1: address
+  field_address/postal_code: postal_code
+  field_address/administrative_area: province
+
+destination:
+  plugin: entity:node
+  node_type: activity
+
+dependencies:
+  module:
+    - migrate_agand
+  enforced:
+    module:
+      - migrate_agand

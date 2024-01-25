@@ -1,0 +1,19 @@
+services:
+  logger.channel.agand:
+    parent: logger.channel_base
+    arguments: ['agand']
+  agand.twig.twig_extension:
+    class: Drupal\agand\Template\TwigExtension
+    arguments:
+      - '@agand.header_image'
+      - '@config.factory'
+    tags:
+      - { name: twig.extension }
+  agand.header_image:
+    class: Drupal\agand\Service\HeaderImage
+    arguments:
+      - '@path.current'
+      - '@path_alias.manager'
+      - '@path.matcher'
+      - '@entity.repository'
+      - '@entity_type.manager'

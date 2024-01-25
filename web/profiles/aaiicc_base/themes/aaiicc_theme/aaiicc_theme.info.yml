@@ -1,0 +1,9 @@
+name: 'aaiicc theme'
+type: theme
+description: 'A custom theme for my Drupal installation profile.'
+package: aaiicc
+core_version_requirement: ^8 || ^9 || ^10
+base theme: olivero
+
+libraries:
+  - aaiicc_theme/global-styling

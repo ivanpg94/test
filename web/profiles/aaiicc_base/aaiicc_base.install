@@ -1,0 +1,62 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the profilename install profile.
+ */
+
+use Drupal\shortcut\Entity\Shortcut;
+use Drupal\user\Entity\User;
+use Drupal\user\RoleInterface;
+use Drupal\user\UserInterface;
+
+/**
+ * Implements hook_install().
+ *
+ * Perform actions to set up the site for this profile.
+ *
+ * @see system_install()
+ */
+function aaiicc_base_install() {
+  // Set front page to "node" by default.
+  \Drupal::configFactory()->getEditable('system.site')->set('page.front', '/node')->save(TRUE);
+
+  // Enable the admin theme (Claro).
+  \Drupal::configFactory()->getEditable('system.theme')->set('admin', 'aaiicc_theme')->save(TRUE);
+
+  // Enable the frontend theme (aaiicc_theme).
+  \Drupal::configFactory()->getEditable('system.theme')->set('default', 'aaiicc_theme')->save(TRUE);
+
+  // Disable agregation
+  shell_exec('drush config-set system.performance js.preprocess 0');
+  shell_exec('drush config-set system.performance css.preprocess 0');
+
+}
+
+function aaiicc_base_install_tasks(&$install_state): array {
+  $tasks = [];
+
+  $tasks['aaiicc_base_configure_form'] = [
+    'display_name' => t('Select extra modules'),
+    'type' => 'form',
+    'function' => 'Drupal\aaiicc_base\Installer\Form\AaiiccBaseConfigureForm',
+  ];
+
+  $tasks['aaiicc_base_import_configuration'] = [
+    'display_name' => t('Import Configuration'),
+    'type' => 'function',
+    'function' => 'aaiicc_base_import_configuration',
+  ];
+
+  return $tasks;
+
+}
+/**
+ * Implements hook_install_tasks().
+ */
+function aaiicc_base_import_configuration(&$install_state) {
+  // Path to config folder
+  $config_folder = '/profiles/aaiicc_base/config/install';
+
+  // Import configuration from the specified folder.
+  shell_exec("drush cim -y --source=$config_folder");
+}

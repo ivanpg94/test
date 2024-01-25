@@ -1,0 +1,21 @@
+agand.activity_ics_download:
+  path: '/activity/{node}/ics-download'
+  defaults:
+    _title: 'Activity ICS Download'
+    _controller: 'Drupal\agand\Controller\ActivityIcsController::icsDownload'
+  requirements:
+    _entity_access: 'node.view'
+    _entity_bundles: 'node:activity'
+    node: \d+
+  options:
+    parameters:
+      node:
+        type: entity:node
+
+agand.config:
+  path: '/admin/config/system/agand'
+  defaults:
+    _title: 'Agenda Andaluza Config'
+    _form: 'Drupal\agand\Form\ConfigForm'
+  requirements:
+    _permission: 'administer site configuration'

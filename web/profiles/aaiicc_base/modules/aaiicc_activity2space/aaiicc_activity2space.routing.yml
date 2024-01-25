@@ -1,0 +1,7 @@
+aaiicc_activity2space.autocomplete_activity:
+  path: '/aaiicc-activity2space/autocomplete-activity'
+  defaults:
+    _controller: '\Drupal\aaiicc_activity2space\Controller\Activity2SpaceController::autocompleteActivity'
+    _format: json
+  requirements:
+    _access: 'TRUE'

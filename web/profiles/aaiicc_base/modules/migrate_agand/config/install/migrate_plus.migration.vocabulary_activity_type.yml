@@ -1,0 +1,24 @@
+id: vocabulary_activity_type
+label: 'Tipo de actividad'
+
+source:
+  plugin: csv
+  path: 'public://activity_type.csv'
+  ids:
+    - label
+
+process:
+  vid:
+    plugin: default_value
+    default_value: activity
+  name: label
+
+destination:
+  plugin: entity:taxonomy_term
+
+dependencies:
+  module:
+    - migrate_agand
+  enforced:
+    module:
+      - migrate_agand

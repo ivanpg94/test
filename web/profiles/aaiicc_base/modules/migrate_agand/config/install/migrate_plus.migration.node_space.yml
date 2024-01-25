@@ -1,0 +1,109 @@
+id: node_space
+label: Space
+
+source:
+  plugin: d7_space
+  node_type: lugar
+  key: migrate
+  constants:
+    FILTER_VAR_FLOAT: 259
+    NULL_VALUE: null
+
+process:
+  # Base fields
+  type:
+    plugin: default_value
+    default_value: space
+  uid:
+    plugin: default_value
+    default_value: 1
+  langcode: language
+  title:
+    plugin: skip_on_empty
+    method: row
+    source: title
+  status: status
+  promote: promote
+  sticky: sticky
+  created: created
+  changed: changed
+
+  moderation_state:
+    plugin: default_value
+    default_value: published
+
+  # Specific fields
+
+  # Address fields
+  field_address/langcode:
+    plugin: default_value
+    default_value: es
+  field_address/country_code:
+    plugin: default_value
+    default_value: ES
+  field_address/locality: city
+  field_address/address_line1: field_direccion/0/value
+  field_address/postal_code: field_codigo_postal/0/value
+  field_address/administrative_area: province
+
+  # Coordinates fields
+  field_coordinates/lat:
+    -
+      plugin: callback
+      callable: filter_var
+      unpack_source: true
+      source:
+        - field_latitud/0/value
+        - constants/FILTER_VAR_FLOAT
+    -
+      plugin: skip_on_empty
+      method: process
+  field_coordinates/lng:
+    -
+      plugin: callback
+      callable: filter_var
+      unpack_source: true
+      source:
+        - field_longitud/0/value
+        - constants/FILTER_VAR_FLOAT
+    -
+      plugin: skip_on_empty
+      method: process
+
+  # Reference fields
+  field_province:
+    plugin: static_map
+    source: field_provincia
+    default_value: null
+    map:
+      # Almería
+      13: 1438
+      # Barcelona
+      17: 1447
+      # Cádiz
+      25: 1439
+      # Córdoba
+      26: 1440
+      # Granada
+      28: 1485
+      # Huelva
+      31: 1442
+      # Jaén
+      33: 1489
+      # Madrid
+      38: 1446
+      # Málaga
+      41: 1444
+      # Sevilla
+      51: 1445
+
+destination:
+  plugin: entity:node
+  node_type: space
+
+dependencies:
+  module:
+    - migrate_agand
+  enforced:
+    module:
+      - migrate_agand

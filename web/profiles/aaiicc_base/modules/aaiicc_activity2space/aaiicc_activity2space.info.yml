@@ -1,0 +1,6 @@
+name: Activity 2 Space
+type: module
+description: 'Módulo personalizado para copiar contenido de nodos de tipo Activity a nodos de tipo Space.'
+package: AAIICC
+version: 0.1
+core_version_requirement: ^9 || ^10 

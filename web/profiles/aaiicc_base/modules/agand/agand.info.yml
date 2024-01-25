@@ -1,0 +1,13 @@
+name: Agenda Andaluza
+type: module
+description: 'Custom functionality for Agenda Andaluza web.'
+package: Custom
+core: 8.x
+core_version_requirement: ^8 || ^9 || ^10
+configure: agand.config
+
+dependencies:
+  - date_popup:date_popup
+
+'interface translation project': agand
+'interface translation server pattern': 'modules/custom/%project/translations/%language.po'

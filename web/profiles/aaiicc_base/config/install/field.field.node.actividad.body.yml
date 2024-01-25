@@ -1,0 +1,24 @@
+uuid: 151579f8-f275-4534-8add-0b542bbc3097
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.node.body
+    - node.type.actividad
+  module:
+    - text
+id: node.actividad.body
+field_name: body
+entity_type: node
+bundle: actividad
+label: Body
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: true
+  required_summary: false
+  allowed_formats: {  }
+field_type: text_with_summary

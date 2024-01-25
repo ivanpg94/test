@@ -1,0 +1,67 @@
+{
+    "name": "wodby/aaiicc_base",
+    "description": "aaiicc",
+    "type": "drupal-profile",
+    "authors": [
+        {
+            "name": "wodby",
+            "email": "wodby@example.com"
+        }
+    ],
+    "config": {
+        "bin-dir": "bin",
+        "sort-packages": true,
+        "preferred-install": {
+            "drupal/core": "dist"
+        },
+        "allow-plugins": {
+            "composer/installers": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "cweagans/composer-patches": true,
+            "drupal/core-composer-scaffold": true,
+            "oomphinc/composer-installers-extender": true
+        }
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        }
+    ],
+    "require": {
+        "drupal/webform": "^6.2",
+        "drupal/upgrade_status": "^4.0",
+        "drupal/admin_toolbar": "^3.4",
+        "drupal/addtoany": "^2.0",
+        "drupal/search_api": "^1.31",
+        "drupal/search_api_solr": "^4.3",
+        "drupal/antibot": "^2.0",
+        "drupal/bulk_user_registration": "^2.0",
+        "drupal/coffee": "^1.3",
+        "drupal/colorbox": "^2.0",
+        "drupal/config_filter": "^2.6",
+        "drupal/config_split": "^2.0",
+        "drupal/crop": "^2.3",
+        "drupal/ctools": "^4.0",
+        "drupal/date_popup": "^2.0",
+        "drupal/devel": "^5.1",
+        "drupal/eu_cookie_compliance": "^1.24",
+        "drupal/field_group": "^3.4",
+        "drupal/field_permissions": "^1.3",
+        "drupal/focal_point": "^2.0",
+        "drupal/geolocation": "^3.12",
+        "drupal/google_analytics_reports": "^3.1",
+        "drupal/google_analytics_reports_api": "^3.1",
+        "drupal/google_tag": "^2.0",
+        "drupal/honeypot": "^2.1",
+        "drupal/jquery_ui": "^1.6",
+        "drupal/jquery_ui_autocomplete": "^2.0",
+        "drupal/jquery_ui_menu": "^2.0",
+        "drupal/linkit": "^6.1",
+        "drupal/rdf": "^2.1",
+        "drupal/simplify": "^2.1",
+        "drupal/smart_trim": "^2.1",
+        "drupal/smtp": "^1.2",
+        "drupal/ui_patterns": "^1.7"
+    }
+}

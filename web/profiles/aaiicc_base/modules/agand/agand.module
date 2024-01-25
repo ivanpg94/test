@@ -1,0 +1,212 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for agand module.
+ *
+ * @DCG
+ * This file is no longer required in Drupal 8.
+ * @see https://www.drupal.org/node/2217931
+ */
+
+declare(strict_types=1);
+
+use Drupal\agand\Cron\UnpublisherCron;
+use Drupal\agand\Entity\Bundle\Activity;
+use Drupal\agand\Entity\Bundle\NodeBundle;
+use Drupal\agand\Entity\Bundle\Space;
+use Drupal\Core\Database\Query\AlterableInterface;
+use \Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_entity_bundle_info_alter().
+ */
+function agand_entity_bundle_info_alter(array &$bundles): void {
+  foreach ($bundles['node'] as $bundle => $definition) {
+    $bundles['node'][$bundle]['class'] = match($bundle) {
+      'activity' => Activity::class,
+      'space' => Space::class,
+      default => NodeBundle::class
+    };
+  }
+}
+
+/**
+ * Implements hook_page_attachments().
+ */
+function agand_page_attachments(array &$attachments): void {
+  // Add the Smartsupp integration js snippet.
+  $agand_settings = \Drupal::config('agand.settings');
+  if (!\Drupal::service('router.admin_context')->isAdminRoute()
+    && $agand_settings->get('smartsupp_active')
+    && !empty($agand_settings->get('smartsupp_id'))
+  ) {
+    $attachments['#attached']['library'][] = 'agand/smartsupp_integration';
+    $attachments['#attached']['drupalSettings']['agand']['smartsuppId'] = $agand_settings->get('smartsupp_id');
+  }
+
+  // Gin minor css fixes.
+  if (\Drupal::currentUser()->hasPermission('view the administration theme')) {
+    $attachments['#attached']['library'][] = 'agand/gin_fix';
+  }
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ *
+ * Prevent the toolbar in the admin sections from creating "Overview" links
+ * making it believe it's horizontal.
+ */
+function agand_preprocess_menu__toolbar__gin(&$variables) {
+  $variables['toolbar_variant'] = 'horizontal';
+}
+
+/**
+ * Implements hook_page_attachments_alter().
+ *
+ * Remove eu banner on admin pages (for some reason it shows even if you
+ * exclude it in its config).
+ */
+function agand_page_attachments_alter(array &$attachments) {
+  if (!\Drupal::service('router.admin_context')->isAdminRoute()) {
+    return;
+  }
+
+  $cookie_library = 'eu_cookie_compliance/eu_cookie_compliance_bare';
+  if (in_array($cookie_library, $attachments['#attached']['library'])) {
+    $index = array_search($cookie_library, $attachments['#attached']['library']);
+    unset($attachments['#attached']['library'][$index]);
+  }
+}
+
+/**
+ * Implements hook_oembed_resource_data_alter().
+ *
+ * Gets the high resolution thumbnail when adding a youtube video.
+ */
+function agand_oembed_resource_data_alter(array &$data, $url) {
+  // Source: https://drupal.stackexchange.com/questions/276510/youtube-media-thumbnail-size
+  if ($data['provider_name'] !== 'YouTube') {
+    return;
+  }
+
+  // Array of thumbnail sizes above 'hqdefault' to try, started with the
+  // largest size.
+  //
+  // @see https://stackoverflow.com/a/20542029
+  $thumbnailTypes = [
+    'maxresdefault' => [
+      'width'   => 1920,
+      'height'  => 1080,
+    ],
+    'sddefault' => [
+      'width'   => 640,
+      'height'  => 480,
+    ],
+  ];
+
+  foreach ($thumbnailTypes as $thumbnailName => $thumbnailDimensions) {
+    // Replace 'hqdefault' in the thumbnail URL with the current type we're
+    // testing for.
+    $testThumbnailURL = str_replace('hqdefault', $thumbnailName, $data['thumbnail_url']);
+
+    // We need to wrap the request in a try {} catch {} because Guzzle will
+    // throw an exception on a 404.
+    try {
+      $response = \Drupal::httpClient()->request('GET', $testThumbnailURL);
+    }
+    // Got an exception? Skip to the next thumbnail size, assuming this
+    // returned a 404 or ran into some other error.
+    catch (\Exception $exception) {
+      continue;
+    }
+
+    // If this was a 200 response, update the thumbnail URL and dimensions
+    // with the higher resolution and break out of the loop.
+    if ($response->getStatusCode() === 200) {
+      $data['thumbnail_url']    = $testThumbnailURL;
+      $data['thumbnail_width']  = $thumbnailDimensions['width'];
+      $data['thumbnail_height'] = $thumbnailDimensions['height'];
+
+      break;
+    }
+  }
+}
+
+/**
+ * Implements hook_cron().
+ */
+function agand_cron() {
+  \Drupal::classResolver(UnpublisherCron::class)->unpublish();
+}
+
+/**
+ * Implements hook_query_TAG_alter().
+ */
+function agand_query_moderation_state_alter(AlterableInterface $query): void {
+  /** @var \Drupal\Core\Database\Query\Select $query */
+  $query->leftJoin('content_moderation_state_field_data', 'ms', 'ms.content_entity_revision_id = base_table.vid');
+  $query->condition('ms.moderation_state', 'published', '=');
+}
+
+function agand_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  //$node = $form_state->getFormObject()->getEntity();
+  $roles = \Drupal::currentUser()->getRoles();
+
+  if($form_id == 'node_activity_form'){
+
+    $form['group_relations']['add_new'] = array(
+      '#type' => 'markup',
+      '#markup' => '<div class="js-form-item form-item js-form-type-entity-autocomplete form-type--entity-autocomplete js-form-item-field-activity__event-0-target-id form-item--field-activity__event-0-target-id">
+                        <div class="claro-autocomplete">
+                        <div  class="form-item__description">
+                            Si el espacio que necesitas no aparece en el listado, pincha en "Añadir nuevo espacio" para añadirlo.
+                            Se abrirá una ventana nueva donde podrás introducir todos los datos del nuevo espacio.
+                            Una vez guardado el nuevo espacio, podrás cerrar esa ventana y volver a la de la actividad.
+                            El espacio ya te aparecerá en la lista.
+                         </div>
+                          <a   href="/cultura/agendaculturaldeandalucia/node/add/space" target="blank">
+                            <div class="new-space">Añadir nuevo espacio</div>
+
+                          </a>
+                      </div>
+                  </div>',
+      '#weight' => 18
+    );
+    //JGP -- SI es el formulario de actividad y no es administrador o gestor se ocultan ciertos campos.
+    //print_r($form['field_institutional']);
+    if( !in_array('administrator', $roles) && !in_array('content_manager', $roles)){
+      $form['field_sections']['#access'] = FALSE;
+    }
+
+  }
+}
+
+// Modificar los correos electrónicos para que muestre siempre https://www.juntadeandalucia.es
+// Ramón Román Castro <ramon.roman.c@juntadeandalucia.es>
+// 20231121
+function agand_mail_alter(&$message) {
+    if (isset($message['body'][0])) {
+        $message['body'][0] = str_replace('http://www1.ccul.junta-andalucia.es:443', 'https://www.juntadeandalucia.es', $message['body'][0]);
+        $message['body'][0] = str_replace('https://zo01-web04.epgpc.epgpc', 'https://www.juntadeandalucia.es', $message['body'][0]);
+    }
+}
+
+
+// Monitorizar la eliminación de vistas
+// Ramón Román Castro <ramon.roman.c@juntadeandalucia.es>
+// 20231121
+
+function agand_views_event_subscriptions() {
+  $subscriptions = [];
+  $subscriptions['view']['delete'] = 'custom_view_audit_view_delete';
+  return $subscriptions;
+}
+
+function custom_view_audit_view_delete($view) {
+  $current_user = \Drupal::currentUser();
+  \Drupal::logger('custom_view_audit')->notice('View %view_name deleted by user %user_id.', [
+    '%view_name' => $view->id(),
+    '%user_id' => $current_user->id(),
+  ]);
+}
