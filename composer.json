@@ -6,12 +6,7 @@
         "docs": "https://www.drupal.org/docs/user_guide/en/index.html",
         "chat": "https://www.drupal.org/node/314178"
     },
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://repo.packagist.com/test-ivanpg1994/"
-        }
-    ],
+
     "require": {
         "composer/installers": "^2.0",
         "drupal/core-composer-scaffold": "^10.2",
