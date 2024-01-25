@@ -2,7 +2,6 @@
     "name": "ivanpg94/test",
     "description": "Project template for Drupal projects with a relocated document root",
     "type": "project",
-    "license": "GPL-2.0-or-later",
     "support": {
         "docs": "https://www.drupal.org/docs/user_guide/en/index.html",
         "chat": "https://www.drupal.org/node/314178"
@@ -10,7 +9,10 @@
     "repositories": [
         {
             "type": "composer",
-            "url": "https://packages.drupal.org/8"
+            "url": "https://repo.packagist.com/test-ivanpg1994/"
+        },
+        {
+            "packagist.org": false
         }
     ],
     "require": {
