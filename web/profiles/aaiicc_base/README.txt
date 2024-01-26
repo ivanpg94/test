@@ -16,3 +16,4 @@ Este paquete nos permitira unir ambos composer.json
 Ejecutamos un composer install en la raíz del proyecto
 Abrimos la web en el navegador y continuaremos desde el navegador el proceso de instalación
 
+composer create-project --repository='{"type": "vcs", "url": "https://github.com/ivanpg94/test"}' ivanpg94/test src

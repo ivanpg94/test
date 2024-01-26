@@ -1,7 +1,0 @@
-administer bulk user registration:
-  title: 'Administer bulk user registration'
-  description: 'Can configure which roles can be assigned during bulk import.'
-  restrict access: true
-
-bulk user registration import:
-  title: 'Perform bulk user import'
