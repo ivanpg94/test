@@ -3,7 +3,7 @@
         'name' => 'ivanpg94/test',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'a442dcce41ff23bd6b736e52065f49524473aef8',
+        'reference' => 'e501a61c4d67a892fd983dacc0bd9a3579c424e7',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -811,7 +811,7 @@
         'ivanpg94/test' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'a442dcce41ff23bd6b736e52065f49524473aef8',
+            'reference' => 'e501a61c4d67a892fd983dacc0bd9a3579c424e7',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
