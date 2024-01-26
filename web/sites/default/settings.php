@@ -893,7 +893,7 @@ $databases['default']['default'] = array (
   'namespace' => 'Drupal\\mysql\\Driver\\Database\\mysql',
   'autoload' => 'core/modules/mysql/src/Driver/Database/mysql/',
 );
-$settings['config_sync_directory'] = 'sites/default/files/config_5CIrIzjpXfDJVRJ91rf3UfeEkGYO530E0SvVCug0ltV46ZMg73l4hWumKYxzfFxeoB_EbfY9jQ/sync';
+$settings['config_sync_directory'] = './config/sync';
 $config['system.theme']['default'] = 'claro';
 $config['system.theme']['admin'] = 'claro';
 $settings['install_profile'] = 'aaiicc_base';

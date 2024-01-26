@@ -1,0 +1,35 @@
+uuid: b0621473-ecd7-4fab-8087-e8085ff21abf
+langcode: es
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.actividad.body
+    - field.field.node.actividad.field_title
+    - node.type.actividad
+  module:
+    - text
+    - user
+id: node.actividad.teaser
+targetEntityType: node
+bundle: actividad
+mode: teaser
+content:
+  body:
+    type: text_summary_or_trimmed
+    label: hidden
+    settings:
+      trim_length: 600
+    third_party_settings: {  }
+    weight: 101
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  addtoany: true
+  field_title: true
+  langcode: true
+  search_api_excerpt: true
